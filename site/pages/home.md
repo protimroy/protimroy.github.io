@@ -7,4 +7,4 @@ template: page.html
 ---
 
 
-I am a computer scientiest equipped with a MSc from the University of Guelph where I published a thesis on the legendary Alopex algorithm. I also worked at Nexus Energy Canada.
+I am a computer scientist equipped with a MSc from the University of Guelph where I published a thesis on the legendary Alopex algorithm. I also worked at Nexus Energy Canada.
