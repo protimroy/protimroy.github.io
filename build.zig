@@ -15,6 +15,11 @@ pub fn build(b: *std.Build) void {
 
     const site_step = b.step("site", "Build the site with Goku");
     const build_site = Goku.build(goku_dep, site_path, out_path);
+    const build_site = Goku.build(&this_dep_hack, b.path("site"), b.path("build"));
+if (b.args) |args| {
+    build_site_cmd.addArgs(args);
+}
+    
     site_step.dependOn(&build_site.step);
 
     const serve_step = b.step("serve", "Serve the built Goku site");
