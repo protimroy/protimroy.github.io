@@ -1,7 +1,7 @@
 ---
 slug: /
 title: Protim Roy
-description: Welcome to the home page of Protim Roy. I am a computer scientist / software developer with a MSc. My projects are documented in my blogs. 
+description: Welcome to the home page of Protim Roy. I am a computer scientist / software developer with a MSc. My projects and content are documented in my blogs. 
 allow_html: true
 template: page.html
 ---
@@ -20,7 +20,7 @@ template: page.html
     <!-- <th>November 2024</th> -->
   </tr>
   <tr>
-    <td> <a href=https://www.protimroy.com/pro-log>Pro-log</a> <br> A blog solely for artificial intelligence(ai), machine learning(ml), deep learning(dl), and generative ai.<br><br> <a href=https://www.protimroy.com/pro-log>Placeholder</a> <br> a blog for all things engineerings</td>
+    <td> <a href=https://www.protimroy.com/pro-log>Pro-log</a> <br> A blog solely for artificial intelligence(ai), machine learning(ml), deep learning(dl), and generative ai.<br><br> <a href=https://www.protimroy.com/pro-log>Placeholder</a> <br> a blog for design, engineering, and programming related content.</td>
   </tr>
 
   <tr>
