@@ -1,7 +1,7 @@
 ---
 slug: /
 title: Protim Roy
-description: Welcome to the home page of Protim Roy. I am a computer scientist / software developer with a MSc. My projects are documented in my blogs. 
+description: Welcome to the home page of Protim Roy.
 allow_html: true
 template: page.html
 ---
