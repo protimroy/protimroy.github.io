@@ -1,6 +1,6 @@
 # protimroy.github.io
 
-protimroy.github.io is a Goku-powered site.
+protimroy.github.io is a Goku-powered site!
 
 This repo is a consumer of the Goku build-time API rather than a checkout of the Goku source tree.
 
