@@ -16,6 +16,12 @@ template: page.html
   </tr>
   
   <tr>
+    <th>Research</th>
+  </tr>
+  <tr>
+    <td><a href="/farout-llms/">Farout LLMs</a><br>A field guide to unconventional language-model architectures.</td>
+  </tr>
+  <tr>
     <th>Blogs</th>
     <!-- <th>November 2024</th> -->
   </tr>
