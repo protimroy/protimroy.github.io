@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="A mechanism-first field guide to unconventional language models, by Protim Roy. Compare recurrence, state spaces, diffusion, memory, and more.">
+  <link rel="canonical" href="https://www.protimroy.com/farout-llms/">
+  <link rel="stylesheet" href="./gallery.css">
+  <script type="module" src="./gallery.mjs"></script>
+  <title>Farout LLMs | Protim Roy</title>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="wrap topbar" aria-label="Site">
+      <a class="home" href="/">Protim Roy</a>
+      <div class="toplinks"><a href="#gallery">Gallery</a><a href="#compare">Compare</a><a href="#criteria">Criteria</a></div>
+    </nav>
+  </header>
+  <main id="main" class="wrap">
+    <section class="intro" aria-labelledby="title">
+      <div>
+        <p class="eyebrow">Research / Architecture Gallery</p>
+        <h1 id="title">Farout LLMs</h1>
+        <p class="lede">A field guide to language models that change how computation, memory, or generation works.</p>
+        <p class="intro-note">Browse original mechanism diagrams, compare designs, and see what the primary evidence actually supports.</p>
+        <div class="intro-links"><a class="button primary" href="#gallery">Browse architectures</a><a class="button" href="#compare">Compare two designs</a></div>
+      </div>
+      <aside class="feature" aria-label="Featured architecture">
+        <p class="eyebrow">In focus / Persistent state</p>
+        <div class="lattice" role="img" aria-label="Three successive token positions share persistent state horizontally; residual information moves vertically through three layers.">
+          <span class="lattice-x">Token t − 1</span><span class="lattice-x">Token t</span><span class="lattice-x">Token t + 1</span>
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <span class="lattice-caption">Depth ↓ <b>Time →</b></span>
+        </div>
+        <a href="#latent-lattice">Latent Lattice Language Models</a>
+        <p>State moves across tokens as well as through layers.</p>
+      </aside>
+    </section>
+
+    <section id="gallery" aria-labelledby="gallery-title" class="section">
+      <div class="section-head"><div><p class="eyebrow">The catalogue</p><h2 id="gallery-title">Explore the designs</h2></div><p id="catalog-meta" class="secondary"></p></div>
+      <noscript><p>This interactive gallery needs JavaScript. The <a href="./architectures.json">source catalogue</a> contains all entries and paper links.</p></noscript>
+      <div id="filters" class="filters" hidden>
+        <label>Search<input id="search" type="search" placeholder="Name, mechanism, or family"></label>
+        <label>Family<select id="family"><option value="">All families</option></select></label>
+        <label>Status<select id="status"><option value="">Any status</option><option>Include</option><option>Watch</option></select></label>
+        <label>Sort by<select id="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="name">Name A–Z</option></select></label>
+        <button id="reset" type="button">Reset filters</button>
+      </div>
+      <p id="feedback" class="secondary" role="status"></p>
+      <div id="cards" class="cards"></div>
+    </section>
+
+    <section id="compare" class="section compare" aria-labelledby="compare-title">
+      <p class="eyebrow">Architecture comparison</p>
+      <h2 id="compare-title">Compare two designs</h2>
+      <p class="secondary">Pick two architectures to compare how they mix information, what state they keep, and where the evidence stops.</p>
+      <div id="compare-controls" class="compare-controls" hidden>
+        <label>Model A<select id="model-a"><option value="">Choose an architecture</option></select></label>
+        <label>Model B<select id="model-b"><option value="">Choose an architecture</option></select></label>
+        <button id="swap" type="button">Swap</button><button id="clear" type="button">Clear</button>
+      </div>
+      <p id="compare-help" class="secondary" role="status"></p>
+      <div id="comparison" class="comparison"></div>
+    </section>
+
+    <section id="criteria" class="section criteria" aria-labelledby="criteria-title">
+      <p class="eyebrow">Editorial policy</p>
+      <h2 id="criteria-title">What earns a place?</h2>
+      <div class="criteria-copy">
+        <p>The unit of coverage is the <strong>mechanism</strong>, not the checkpoint. An entry must change the computation graph, the memory interface, the representation, the arithmetic, or the way the model generates language.</p>
+        <p><strong>Include</strong> means a distinct mechanism with credible language-model evidence. <strong>Watch</strong> means the idea is materially different but evidence is still narrow or preliminary. Routine scaling, standard expert routing, post-training quantization, and serving-only changes are out of scope.</p>
+        <p>Diagrams are original, simplified schematics. Parameter and context figures refer to the named experiment or release, and author-reported results are not independent replications. Dates refer to initial papers or technical announcements unless noted.</p>
+        <p><a href="./architectures.json">Catalogue JSON</a> · Reference format inspired by <a href="https://sebastianraschka.com/llm-architecture-gallery/">Sebastian Raschka’s LLM Architecture Gallery</a>.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wrap"><a href="/">Protim Roy</a><a href="#main">Back to top</a></div></footer>
+</body>
+</html>
