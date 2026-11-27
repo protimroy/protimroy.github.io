@@ -1,8 +1,284 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-25",
+  "updated": "2026-11-27",
   "families": ["Recurrent", "State space", "Hybrid", "Diffusion", "Low-bit", "Memory", "Token compression", "Attention", "Graph"],
   "entries": [
+    {
+      "id": "geometry-workspace",
+      "name": "The Missing Root / Object Workspace",
+      "date": "2026-11-25",
+      "status": "Watch",
+      "families": [
+        "Memory",
+        "Hybrid"
+      ],
+      "scale": "Qwen3-1.7B plus 75.9M parameters",
+      "context": "Synthetic 2D multi-object scenes",
+      "generation": "Interleaved text and continuous state updates",
+      "mixing": "Parallel geometry stream with blockwise object attention",
+      "composition": "A narrow spatial stream sits beside each language layer. Control tokens switch the decoder between words and updates to object pose and shape.",
+      "state": "Object states persist across scene edits; language still uses a Transformer backbone and its token context.",
+      "availability": "Research paper",
+      "summary": "Turns a text description into an internal object scene, updates it with continuous predictions, and reads the scene to answer in words.",
+      "novelty": "Unlike an image-token VLM or tool-calling simulator, the LM writes continuous object state natively. The answer-stage visibility mask removes access to earlier prose, allowing a direct test of state use.",
+      "evidence": "At 1.7B plus 4.4% parameters, accuracy on 300 held-out 2D problems is 71%, versus 38% with zeroed object tokens and 36% with randomized tokens.",
+      "limits": "Synthetic rigid 2D objects and a limited shape library. WikiText-2 perplexity worsens from 16.38 to 18.72. No evidence yet of general-purpose spatial reasoning.",
+      "diagram": {
+        "steps": [
+          "Text instruction",
+          "Object state",
+          "Scene update",
+          "Readout"
+        ],
+        "accent": 1,
+        "caption": "The model can write continuous object state and later use it to generate a textual answer."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.33841"
+        }
+      ]
+    },
+    {
+      "id": "stable-gdn-2",
+      "name": "Stable Gated DeltaNet-2",
+      "date": "2026-11-25",
+      "status": "Include",
+      "families": [
+        "Recurrent",
+        "Hybrid",
+        "Memory"
+      ],
+      "scale": "About 1.6B",
+      "context": "64K pretraining; RULER to 128K",
+      "generation": "Autoregressive",
+      "mixing": "Delta-rule linear attention with symmetric channel-wise erasure",
+      "composition": "Evaluated as a pure recurrent stack and as a 3:1 hybrid with full attention.",
+      "state": "Fixed-size matrix state per recurrent layer; the hybrid still retains full-attention KV.",
+      "availability": "Research paper",
+      "summary": "Changes the delta update so prior state cannot be amplified by the erase-and-decay operation under the paper’s assumptions. A decay-regulated residual write restores write flexibility.",
+      "novelty": "GDN-2’s asymmetric erasure can amplify memory even when new writes stop. This design applies the erase gate symmetrically to the two key factors instead of clipping the state after amplification.",
+      "evidence": "At about 1.6B parameters, the paper reports +6.80 points on 128K RULER for the pure recurrent model and +0.62 points across nine downstream tasks in the hybrid.",
+      "limits": "The main quality comparison uses one initialization and data seed. Non-expansive propagation bounds amplification of existing state, not the size or fidelity of arbitrary accumulated writes.",
+      "diagram": {
+        "steps": [
+          "Old state",
+          "Symmetric erase",
+          "Gated write",
+          "New state"
+        ],
+        "accent": 1,
+        "caption": "The change is inside the transition, before the new association is written."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.34051"
+        }
+      ]
+    },
+    {
+      "id": "state-space-attention",
+      "name": "State Space Attention",
+      "date": "2026-11-25",
+      "status": "Include",
+      "families": [
+        "Attention",
+        "Memory"
+      ],
+      "scale": "Up to 400M; 15B-token pretraining",
+      "context": "2K pretraining; 8K post-training evaluation with 576 readable tokens in the main result",
+      "generation": "Autoregressive",
+      "mixing": "Exact causal attention within a learned, bounded chunk memory",
+      "composition": "A small Transformer scores every retained chunk against incoming context. The reader attends to the surviving chunks and a recent window.",
+      "state": "The retained chunks carry exact per-layer K/V. The fixed budget bounds inference storage; discarded chunks cannot be reread.",
+      "availability": "Paper and code",
+      "summary": "Learns what context to keep, not just what to read from a growing cache. A scorer revisits earlier retention choices as each new chunk arrives.",
+      "novelty": "Learned eviction is not new. Unlike a retrieval mask over a full cache or a hybrid with an auxiliary recurrent summary, rescored discrete chunk retention is its only long-range memory and is trained jointly with the reader.",
+      "evidence": "At 8K, RULER averages 56.40 versus 14.61 for a 576-token-window Transformer and 76.86 for an 8K-pretrained full-attention Transformer.",
+      "limits": "Main 400M results are single-seed, with unstable pilot reruns. Perplexity trails full attention, and the reported training implementation is substantially slower per update.",
+      "diagram": {
+        "steps": [
+          "New chunk",
+          "Rescore residents",
+          "Evict one",
+          "Softmax read"
+        ],
+        "accent": 1,
+        "caption": "The scorer decides which exact history remains available to the reader."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.33625"
+        },
+        {
+          "label": "Code",
+          "url": "https://github.com/Ege-Cakar/State-Space-Attention"
+        }
+      ]
+    },
+    {
+      "id": "attention-latent-feedback",
+      "name": "Attention Latent Feedback",
+      "date": "2026-11-23",
+      "status": "Include",
+      "families": [
+        "Recurrent",
+        "Memory",
+        "Attention"
+      ],
+      "scale": "MoE models up to 4.0B",
+      "context": "Feedback reads the preceding token; the base KV cache is unchanged",
+      "generation": "Autoregressive",
+      "mixing": "Depth attention across adjacent token positions",
+      "composition": "Each sublayer can attend to deeper outputs of the preceding token. Training uses two parallel passes; decoding uses cached outputs in one pass per token.",
+      "state": "One token’s sublayer outputs, O(layers × width), in addition to the original cache.",
+      "availability": "Paper and code",
+      "summary": "A shallow layer can retrieve a representation from a deeper layer of the previous token instead of waiting for the current token to traverse the same depth.",
+      "novelty": "Final-state feedback and Temporal Residual pass a consolidated signal. ALF exposes a bank of individual deeper sublayer outputs and lets each receiver learn which ones to read.",
+      "evidence": "At 4.0B, mean accuracy across 17 tasks rises from 45.1% to 47.0%. Across model sizes, the paper reports 0.022–0.024 nats lower held-out loss than the standard residual.",
+      "limits": "The reported 1.1% decoding FLOP overhead does not capture additional memory traffic. The two-pass training computation approximates exact autoregressive feedback; evidence is limited to the tested MoE backbones.",
+      "diagram": {
+        "steps": [
+          "Prior token’s depth",
+          "Selective read",
+          "Current sublayer"
+        ],
+        "accent": 1,
+        "caption": "The previous token’s deeper outputs become addressable by shallower computation."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.31154"
+        },
+        {
+          "label": "Code",
+          "url": "https://github.com/xjxyys/ALF"
+        }
+      ]
+    },
+    {
+      "id": "loomformer",
+      "name": "LoomFormer / Loom Attention",
+      "date": "2026-11-23",
+      "status": "Include",
+      "families": [
+        "Attention"
+      ],
+      "scale": "Up to 2.8B in the reported long run",
+      "context": "Standard sequence attention; no extended-context claim",
+      "generation": "Autoregressive",
+      "mixing": "Same-token cross-head retrieval plus cross-token attention",
+      "composition": "A vector stream controls reads and writes into a per-token matrix stream. Each attention head derives Q/K/V from reads of earlier head outputs.",
+      "state": "Fixed-size matrix per token across depth, separate from the sequence KV cache.",
+      "availability": "Paper and code",
+      "summary": "Makes the connections between attention heads depend on the current token. A head reads compressed earlier outputs before attending to other tokens.",
+      "novelty": "Unlike attention residuals or mHC’s stream mixing, the learned read occurs at individual heads and produces their queries, keys, and values. It routes across depth, not into the next token’s residual as ALF does.",
+      "evidence": "At 2.8B and 300B Pile tokens, the authors report +3.6 and +4.3 points over Pythia-2.8B on ten-task zero- and five-shot averages. The 2.8B run adds about 2% modeled FLOPs.",
+      "limits": "Measured throughput is lower than matched Transformers despite the small FLOP overhead. Detailed component ablations are at 432M. The matrix stream does not bound the sequence KV cache.",
+      "diagram": {
+        "steps": [
+          "Earlier heads",
+          "Matrix state",
+          "Head Q / K / V",
+          "Token attention"
+        ],
+        "accent": 1,
+        "caption": "Each token selects its own read from earlier heads before attending across the sequence."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.30634"
+        },
+        {
+          "label": "Code",
+          "url": "https://github.com/Caiyun-AI/LoomFormer"
+        }
+      ]
+    },
+    {
+      "id": "loopres",
+      "name": "Loop Residuals / LoopRes",
+      "date": "2026-11-23",
+      "status": "Include",
+      "families": [
+        "Recurrent",
+        "Attention"
+      ],
+      "scale": "Six pretrained models from 1B to 30B total",
+      "context": "Bounded window in loop depth, not token context",
+      "generation": "Autoregressive with recurrent depth",
+      "mixing": "Loop-addressable attention over residual sources",
+      "composition": "A shared core attends to recent loop and block outputs; learned structural keys identify a source independently of its content.",
+      "state": "The residual-source window bounds state growth from this mixer as loop count increases; it is not a token KV-compression method.",
+      "availability": "Paper and code",
+      "summary": "Makes past iterations addressable by loop and block. Each shared layer can retrieve information from a bounded history of internal computation.",
+      "novelty": "Plain Attention Residuals can confuse similar iterates and allow shortcuts over many loops. InfiLoop pools old states into a streaming summary; LoopRes retains individually addressable recent iterates with separate structural keys.",
+      "evidence": "At the 2× compute setting, Qwen3-1.7B rises from 43.2 to 55.8 on a seven-task math/code average (29.1% relative). Gains are reported across Qwen3, Qwen3.5 and Llama-3.2 backbones.",
+      "limits": "Evidence is from supervised fine-tuning on math and code. General helpfulness, open-ended generation and reinforcement-learning behavior remain untested.",
+      "diagram": {
+        "steps": [
+          "Prior loop outputs",
+          "Loop-aware keys",
+          "Shared core"
+        ],
+        "accent": 1,
+        "caption": "Loop identity and content jointly choose which recent residuals flow into the next computation."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.31094"
+        },
+        {
+          "label": "Code",
+          "url": "https://github.com/NUS-HPC-AI-Lab/LoopRes"
+        }
+      ]
+    },
+    {
+      "id": "memonce",
+      "name": "MemOnce",
+      "date": "2026-11-20",
+      "status": "Include",
+      "families": [
+        "Memory",
+        "Token compression",
+        "Hybrid",
+        "Attention"
+      ],
+      "scale": "Up to 1B from scratch; Qwen3.5 2B and 4B adaptations",
+      "context": "Memory benchmarks span roughly 4K–1M tokens",
+      "generation": "Autoregressive",
+      "mixing": "Sparse retrieval of compressed latents, decoded into layer-specific K/V",
+      "composition": "A hybrid backbone writes a trailing subset of final-layer states. It retrieves once per incoming input, then projects the chosen latents separately for each attention layer.",
+      "state": "Bounded active state; the compressed archive grows with history. Full layer-wise K/V is regenerated only for retrieved material.",
+      "availability": "Research paper and project page",
+      "summary": "Stores one compressed representation of history, searches it once, and rebuilds each attention layer’s memory only for selected items.",
+      "novelty": "Unlike YOCO or LastKV, which share states across depth, MemOnce sparsifies and compresses history across time as well and reconstructs different K/V per layer. Unlike KVPath, it does not persist a chain of per-layer KV deltas.",
+      "evidence": "At 4B, the authors report 60.07 mean on five memory tasks, 5.77 points above their full-context Qwen3.5 baseline.",
+      "limits": "The large-model numbers are adaptations scored with an LLM judge, not from-scratch results. Pretraining stops at 1B; old content can still grow the archive and depend on successful retrieval.",
+      "diagram": {
+        "steps": [
+          "Segment states",
+          "Shared archive",
+          "Retrieve once",
+          "Per-layer K/V"
+        ],
+        "accent": 2,
+        "caption": "Only the selected compressed history is projected back into token attention."
+      },
+      "sources": [
+        {
+          "label": "Paper",
+          "url": "https://arxiv.org/abs/2611.27973"
+        }
+      ]
+    },
     {
       "id": "temporal-residual", "name": "Temporal Residual", "date": "2026-11-23", "status": "Include", "families": ["Recurrent", "Memory"],
       "scale": "4.2B backbone", "context": "Not a context extension", "generation": "Autoregressive", "mixing": "Original backbone plus a cross-token residual",
